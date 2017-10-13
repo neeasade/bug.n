@@ -274,6 +274,18 @@ View_setGapWidth(i, d = 0) {
     Return, 0
 }
 
+View_toggleMonocle() {
+  Local v
+
+  v := Monitor_#%Manager_aMonitor%_aView_#1
+  i := View_#%Manager_aMonitor%_#%v%_layout_#2
+
+  If (i = 1)
+    View_setLayout(1)
+  Else If (i = 2)
+    View_setLayout(2)
+}
+
 View_setLayout(i, d = 0) {
   Local v
 
@@ -282,7 +294,9 @@ View_setLayout(i, d = 0) {
     i := View_#%Manager_aMonitor%_#%v%_layout_#2
   Else If (i = 0)
     i := View_#%Manager_aMonitor%_#%v%_layout_#1
+
   i := Manager_loop(i, d, 1, Config_layoutCount)
+
   If (i > 0) And (i <= Config_layoutCount) {
     If Not (i = View_#%Manager_aMonitor%_#%v%_layout_#1) {
       View_#%Manager_aMonitor%_#%v%_layout_#2 := View_#%Manager_aMonitor%_#%v%_layout_#1

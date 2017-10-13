@@ -22,7 +22,7 @@ Config_init() {
   Config_verticalBarPos    := "top"
   Config_barWidth          := "100%"
   Config_singleRowBar      := True
-  Config_spaciousBar       := False
+  Config_spaciousBar       := True
   Config_fontName          := "Lucida Console"
   Config_fontSize          :=
   Config_largeFontSize     := 24
@@ -32,7 +32,7 @@ Config_init() {
     Config_fontColor_#%A_Index% :=
   }
   Config_barTransparency   := "off"
-  Config_barCommands       := "Run, explore " Main_docDir ";Monitor_toggleBar();Reload;ExitApp"
+  Config_barCommands       := "Run, cmd;Run, explore " Main_docDir ";Monitor_toggleBar();Reload;ExitApp"
   Config_readinBat         := False
   Config_readinCpu         := False
   Config_readinDate        := True
@@ -57,7 +57,7 @@ Config_init() {
                                 ;; but is dependant on the setting in the `Display control panel` of Windows under `Appearance and Personalization`.
 
   ;; Window arrangement
-  Config_viewNames          := "1;2;3;4;5;6;7;8;9"
+  Config_viewNames          := "1;2;3;4"
   Config_layout_#1          := "[]=;tile"
   Config_layout_#2          := "[M];monocle"
   Config_layout_#3          := "><>;"
@@ -65,7 +65,7 @@ Config_init() {
   Config_layoutAxis_#1      := 1
   Config_layoutAxis_#2      := 2
   Config_layoutAxis_#3      := 2
-  Config_layoutGapWidth     := 0
+  Config_layoutGapWidth     := 5
   Config_layoutMFactor      := 0.6
   Config_areaTraceTimeout   := 1000
   Config_continuouslyTraceAreas := False
@@ -83,6 +83,7 @@ Config_init() {
   ;; Config_rule_#<i> := "<class>;<title>;<function name>;<is managed>;<m>;<tags>;<is floating>;<is decorated>;<hide title>;<action>"
   Config_rule_#1   := ".*;.*;;1;0;0;0;0;0;"
   Config_rule_#2   := ".*;.*;Window_isChild;0;0;0;1;1;1;"
+
   Config_rule_#3   := ".*;.*;Window_isPopup;0;0;0;1;1;1;"
   Config_rule_#4   := "QWidget;.*;;1;0;0;0;0;0;"
   Config_rule_#5   := "SWT_Window0;.*;;1;0;0;0;0;0;"
@@ -99,7 +100,9 @@ Config_init() {
   Config_rule_#16  := "MozillaWindowClass;.*Mozilla Firefox;;1;0;0;0;1;0;"
   Config_rule_#17  := "MozillaDialogClass;.*;;1;0;0;1;1;0;"
   Config_rule_#18  := "ApplicationFrameWindow;.*Edge;;1;0;0;0;1;0;"
-  Config_ruleCount := 18  ;; This variable has to be set to the total number of active rules above.
+  ; qutebrowser
+  Config_rule_#19 := "Qt5QWindowIcon;.*;;1;0;0;0;0;0;"
+  Config_ruleCount := 19  ;; This variable has to be set to the total number of active rules above.
 
   ;; Configuration management
   Config_autoSaveSession := "auto"    ;; "off" | "auto" | "ask"
@@ -114,7 +117,7 @@ Config_init() {
     Config_showBorder     := True
     Config_selBorderColor := ""
   }
-  
+
   Config_getSystemSettings()
   Config_initColors()
   Loop, % Config_layoutCount {
@@ -163,7 +166,7 @@ Config_convertSystemColor(systemColor)
 
 Config_edit() {
   Global Config_filePath
-  
+
   If Not FileExist(Config_filePath)
     Config_UI_saveSession()
   Run, edit %Config_filePath%
@@ -412,23 +415,68 @@ Config_UI_saveSession() {
 
 ;; Key definitions
 ;; Window management
+;; function ref: https://github.com/fuhsjr00/bug.n/blob/master/doc/Default_hotkeys.md
+; ! Alt
+; ^ Ctrl, Control
+; # Win / LWin, the left Windows key
+; + Shift
+
+; !+y::View_traceAreas()
+
+; isolated/what I care about:
+
+; run prompts/access
+#Space::Bar_toggleCommandGui()
+; #Space::Run, runprompt
+#+Space::Monitor_toggleNotifyIconOverflowWindow()
+#!Space::View_traceAreas()
+
+; layout toggle (monocle <-> tiling)
+#t::View_toggleMonocle()
+
+; shuffle layouts
+;#Tab::View_setLayout(-1)
+; monocle, tiling
+; #m::View_setLayout(2)
+; #t::View_setLayout(1)
+
+#s::View_toggleFloatingWindow()
+
+#w::Manager_closeWindow()
+
+; applications
+#e::Run, explorer
+#o::Run, qutebrowser
+#Enter::Run, qutebrowser
+
+!Tab::View_activateWindow(0, +1)
+!+Tab::View_activateWindow(0, -1)
+
+#L::MsgBox, test
+
+; end what I care about
+
+
 #Down::View_activateWindow(0, +1)
 #Up::View_activateWindow(0, -1)
+
 #+Down::View_shuffleWindow(0, +1)
 #+Up::View_shuffleWindow(0, -1)
+
 #+Enter::View_shuffleWindow(1)
-#c::Manager_closeWindow()
 #+d::Window_toggleDecor()
-#+f::View_toggleFloatingWindow()
+; #+f::View_toggleFloatingWindow()
 #+m::Manager_moveWindow()
 #^m::Manager_minimizeWindow()
 #+s::Manager_sizeWindow()
 #+x::Manager_maximizeWindow()
 #i::Manager_getWindowInfo()
 #+i::Manager_getWindowList()
+
 !Down::View_moveWindow(0, +1)
 !Up::View_moveWindow(0, -1)
-!+Enter::Manager_maximizeWindow()
+
+; !+Enter::Manager_maximizeWindow()
 !1::View_moveWindow(1)
 !2::View_moveWindow(2)
 !3::View_moveWindow(3)
@@ -449,10 +497,6 @@ Config_UI_saveSession() {
 #^+d::Debug_setLogLevel(0, +1)
 
 ;; Layout management
-#Tab::View_setLayout(-1)
-#f::View_setLayout(3)
-#m::View_setLayout(2)
-#t::View_setLayout(1)
 #Left::View_setLayoutProperty("MFactor", 0, -0.05)
 #Right::View_setLayoutProperty("MFactor", 0, +0.05)
 #^t::View_setLayoutProperty("Axis", 0, +1, 1)
@@ -507,11 +551,8 @@ Config_UI_saveSession() {
 #^+,::Manager_setViewMonitor(0, -1)
 
 ;; GUI management
-#+Space::Monitor_toggleBar()
-#Space::Monitor_toggleTaskBar()
-#y::Bar_toggleCommandGui()
-#+y::Monitor_toggleNotifyIconOverflowWindow()
-!+y::View_traceAreas()
+; #+Space::Monitor_toggleBar()
+; #Space::Monitor_toggleTaskBar()
 
 ;; Administration
 #^e::Config_edit()
